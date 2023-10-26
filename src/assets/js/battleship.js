@@ -35,7 +35,6 @@ const handleOnMessage = ({ data: message }) => {
       const { rooms } = data
 
       const roomList = document.getElementById('roomList')
-      console.log(rooms)
       rooms.forEach((room, ix) => {
         const li = document.createElement('li')
         if (room.totalPlayers === 1) {
@@ -50,6 +49,15 @@ const handleOnMessage = ({ data: message }) => {
           roomList.appendChild(li)
         }
       })
+      break
+    case 'gameOver':
+      //Check who won
+      gameStatus.innerHTML =
+        GAME_STATE.player === data.player ? 'You Won' : 'You Lost'
+
+        //Disable the boards
+        GAME_STATE.player = 0
+
       break
     default:
       break
