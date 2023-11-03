@@ -3,6 +3,7 @@ import expressWs from 'express-ws'
 import { engine } from 'express-handlebars'
 import path from 'path'
 import { generatePlayerBoard, generateEmptyBoard, getTotalPlayersPerRoom } from './game'
+import { Room, PlayerData } from './interfaces/gameInterface'
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -14,20 +15,6 @@ app.engine('handlebars', engine())
 app.set('view engine', 'handlebars')
 app.use(express.static(path.join(__dirname, 'assets')))
 app.set('views', path.join(__dirname, 'views'))
-
-// Define types for the player data and the room
-type PlayerData = {
-  ws: any
-  playerBoard: string[][] // Adjust this to your actual board data type
-  enemyBoard: string[][] // Adjust this to your actual board data type
-  player: number
-  hits: number
-}
-
-type Room = {
-  players: PlayerData[]
-  turn: number
-}
 
 const rooms = new Map<string, Room>()
 const guests: any[] = []
