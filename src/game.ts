@@ -156,6 +156,8 @@ const getTotalPlayersPerRoom = (
   return Array.from(rooms, ([roomId, room]) => ({
     roomId,
     totalPlayers: room.players.length,
+    hitsP1: room?.players[0]?.hits,
+    hitsP2: room?.players[1]?.hits
   }))
 }
 

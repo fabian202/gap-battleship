@@ -28,6 +28,7 @@ wsApp.ws('/websocket', (ws) => {
 wsApp.ws('/game', (ws: any) => {
   ws.on('message', (message: string) => {
     guests.push(ws)
+
     //send the rooms
     const roomIds = Array.from(rooms.keys())
     const guestMessage = {
@@ -37,6 +38,18 @@ wsApp.ws('/game', (ws: any) => {
       }
     }
     ws.send(JSON.stringify(guestMessage))
+
+    //Notify Scores
+    const scoresMessage = {
+      action: 'scoresUpdate',
+      data: {
+        rooms: getTotalPlayersPerRoom(rooms)
+      }
+    }
+
+    guests.forEach((guest) => {
+      guest.send(JSON.stringify(scoresMessage))
+    })
   })
 })
 
@@ -111,6 +124,7 @@ wsApp.ws('/game/:roomID', (ws, req) => {
               turn: 1,
             },
           }
+
           player1!.ws.send(JSON.stringify(notifyMessage))
 
           //Notify guest
@@ -120,6 +134,7 @@ wsApp.ws('/game/:roomID', (ws, req) => {
               rooms: getTotalPlayersPerRoom(rooms)
             }
           }
+
           guests.forEach((guest) => {
             guest.send(JSON.stringify(guestMessage))
           })
@@ -135,7 +150,7 @@ wsApp.ws('/game/:roomID', (ws, req) => {
           row,
           player,
         }: { column: number; row: number; player: number } = messageData.payload
-        // console.log('click', roomID, room)
+
         // Change turn
         room!.turn = room!.turn === 1 ? 2 : 1
         room?.players.forEach((p) => {
@@ -167,8 +182,10 @@ wsApp.ws('/game/:roomID', (ws, req) => {
                 enemyBoard: p.enemyBoard,
                 player: p.player,
                 turn: room!.turn,
+                hits: p.hits 
               },
             }
+
             p.ws.send(JSON.stringify(message))
 
             const enemyMessage = {
@@ -178,6 +195,7 @@ wsApp.ws('/game/:roomID', (ws, req) => {
                 enemyBoard: activePlayer!.enemyBoard,
                 player: activePlayer!.player,
                 turn: room!.turn,
+                hits: activePlayer?.hits
               },
             }
             activePlayer!.ws.send(JSON.stringify(enemyMessage))
@@ -194,7 +212,19 @@ wsApp.ws('/game/:roomID', (ws, req) => {
               //Send message to both players
               activePlayer!.ws.send(JSON.stringify(gameOverMessage))
               p.ws.send(JSON.stringify(gameOverMessage))
+          }
+
+            //Notify Scores
+            const scoresMessage = {
+              action: 'scoresUpdate',
+              data: {
+                rooms: getTotalPlayersPerRoom(rooms)
+              }
             }
+
+            guests.forEach((guest) => {
+              guest.send(JSON.stringify(scoresMessage))
+            })     
           }
         })
 

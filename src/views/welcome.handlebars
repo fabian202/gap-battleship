@@ -17,7 +17,7 @@
 
     socket.onmessage = handleOnMessage
   </script>
-  <div class="container mt-5">
+  <div class="container">
     <div class="row">
       <div class="col-md-12 welcome-text">
         <h1>Welcome</h1>
@@ -30,10 +30,16 @@
       </div>
     </div>
     <div class="row mt-4">
-      <div class="col-md-12">
+      <div class="col-md-6">
         <h2>Already Created Rooms</h2>
         <ul id="roomList">
           <!-- Add more rooms as needed -->
+        </ul>
+      </div>
+      <div class="col-md-6">
+        <h2 style="text-align: center">Game Scores</h2>
+        <ul id="scoreList">
+          <!-- Show game scores -->
         </ul>
       </div>
     </div>
