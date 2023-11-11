@@ -151,8 +151,6 @@ wsApp.ws('/game/:roomID', (ws, req) => {
           player,
         }: { column: number; row: number; player: number } = messageData.payload
 
-        // Change turn
-        room!.turn = room!.turn === 1 ? 2 : 1
         room?.players.forEach((p) => {
           if (p.player !== player) {
             const [matValue, position, index] = p.playerBoard[row][
@@ -173,6 +171,9 @@ wsApp.ws('/game/:roomID', (ws, req) => {
               //register Miss
               p.playerBoard[row][column] = 'M'
               activePlayer!.enemyBoard[row][column] = 'M'
+
+              // Change turn if the user miss
+              room!.turn = room!.turn === 1 ? 2 : 1
             }
             //Send the hit to the player playerBoardUpdate
             const message = {

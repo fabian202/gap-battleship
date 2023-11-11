@@ -145,6 +145,7 @@ function renderBoard(matrix, clickable, isEnemy) {
 }
 
 function handleClick(cell) {
+  if (!GAME_STATE.player) return
   const cellId = cell.id
   const column = cellId.charCodeAt(0) - 65 // Convert column letter to index
   const row = parseInt(cellId.substring(1)) - 1 // Convert row number to index
