@@ -1,16 +1,5 @@
-// Define types for the player data and the room
-type PlayerData = {
-  ws: any
-  playerBoard: string[][] // Adjust this to your actual board data type
-  enemyBoard: string[][] // Adjust this to your actual board data type
-  player: number
-  hits: number
-}
+import {Room} from './interfaces/gameInterface';
 
-type Room = {
-  players: PlayerData[]
-  turn: number
-}
 const generatePlayerBoard = (): string[][] => {
   const matrix: string[][] = []
 
@@ -167,6 +156,8 @@ const getTotalPlayersPerRoom = (
   return Array.from(rooms, ([roomId, room]) => ({
     roomId,
     totalPlayers: room.players.length,
+    hitsP1: room?.players[0]?.hits,
+    hitsP2: room?.players[1]?.hits
   }))
 }
 

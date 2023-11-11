@@ -11,9 +11,10 @@ const handleOnMessage = ({ data: message }) => {
 
   switch (action) {
     case 'playerBoardUpdate':
-      const { playerBoard, enemyBoard, player, turn } = data
+      const { playerBoard, enemyBoard, player, turn, hits: playerHits } = data
       //Render my board
       const playerTable = document.getElementById('playerBoard')
+      const playerHitsTable = document.getElementById('playerHits')
       playerTable.innerHTML = renderBoard(playerBoard, false)
       //render Enemy board
       const enemyTable = document.getElementById('enemyBoard')
@@ -26,6 +27,7 @@ const handleOnMessage = ({ data: message }) => {
       if (turn) {
         gameStatus.innerHTML = turn === player ? 'Your Turn' : `Rival's Turn`
       }
+      playerHitsTable.innerHTML = `Hits: ${playerHits ? playerHits : 0} 💥`
 
       break
     case 'playerJoined':
@@ -35,17 +37,19 @@ const handleOnMessage = ({ data: message }) => {
       const { rooms } = data
 
       const roomList = document.getElementById('roomList')
+
       rooms.forEach((room, ix) => {
         const li = document.createElement('li')
+
         if (room.totalPlayers === 1) {
           const roomLink = document.createElement('a')
           roomLink.href = `/${room.roomId}` // Set the link to the room ID
-          roomLink.textContent = `Room #${ix + 1}`
+          roomLink.textContent = `🚢 Join Room #${ix + 1} (${room.roomId})`
           li.appendChild(roomLink)
           li.innerHTML += ` (${room.totalPlayers}/2 users)`
           roomList.appendChild(li)
         } else {
-          li.innerHTML += `Room #${ix + 1} (${room.totalPlayers}/2 users)`
+          li.innerHTML += `🚢 Room #${ix + 1}  (${room.roomId}) (${room.totalPlayers}/2 users) is full 😎`
           roomList.appendChild(li)
         }
       })
@@ -55,8 +59,22 @@ const handleOnMessage = ({ data: message }) => {
       gameStatus.innerHTML =
         GAME_STATE.player === data.player ? 'You Won' : 'You Lost'
 
-        //Disable the boards
-        GAME_STATE.player = 0
+      //Disable the boards
+      GAME_STATE.player = 0
+
+      break
+    case 'scoresUpdate':
+      const { rooms: allRooms } = data
+      const scoreList = document.getElementById('scoreList')
+      scoreList.innerHTML = ''
+      allRooms.forEach((room, ix) => {
+        const li = document.createElement('li')
+
+        if (room.totalPlayers === 2) {
+          li.innerHTML += `🚢 Room #${ix + 1}  (${room.roomId}) <br/><b>Player 1 Hits:</b> ${room.hitsP1} 💥<br/><b>Player 2 Hits:</b> ${room.hitsP2} 💥`
+          scoreList.appendChild(li)
+        }
+      })
 
       break
     default:

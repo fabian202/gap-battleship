@@ -3,6 +3,7 @@ import expressWs from 'express-ws'
 import { engine } from 'express-handlebars'
 import path from 'path'
 import { generatePlayerBoard, generateEmptyBoard, getTotalPlayersPerRoom } from './game'
+import { Room, PlayerData } from './interfaces/gameInterface'
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -14,20 +15,6 @@ app.engine('handlebars', engine())
 app.set('view engine', 'handlebars')
 app.use(express.static(path.join(__dirname, 'assets')))
 app.set('views', path.join(__dirname, 'views'))
-
-// Define types for the player data and the room
-type PlayerData = {
-  ws: any
-  playerBoard: string[][] // Adjust this to your actual board data type
-  enemyBoard: string[][] // Adjust this to your actual board data type
-  player: number
-  hits: number
-}
-
-type Room = {
-  players: PlayerData[]
-  turn: number
-}
 
 const rooms = new Map<string, Room>()
 const guests: any[] = []
@@ -41,6 +28,7 @@ wsApp.ws('/websocket', (ws) => {
 wsApp.ws('/game', (ws: any) => {
   ws.on('message', (message: string) => {
     guests.push(ws)
+
     //send the rooms
     const roomIds = Array.from(rooms.keys())
     const guestMessage = {
@@ -50,6 +38,18 @@ wsApp.ws('/game', (ws: any) => {
       }
     }
     ws.send(JSON.stringify(guestMessage))
+
+    //Notify Scores
+    const scoresMessage = {
+      action: 'scoresUpdate',
+      data: {
+        rooms: getTotalPlayersPerRoom(rooms)
+      }
+    }
+
+    guests.forEach((guest) => {
+      guest.send(JSON.stringify(scoresMessage))
+    })
   })
 })
 
@@ -124,6 +124,7 @@ wsApp.ws('/game/:roomID', (ws, req) => {
               turn: 1,
             },
           }
+
           player1!.ws.send(JSON.stringify(notifyMessage))
 
           //Notify guest
@@ -133,6 +134,7 @@ wsApp.ws('/game/:roomID', (ws, req) => {
               rooms: getTotalPlayersPerRoom(rooms)
             }
           }
+
           guests.forEach((guest) => {
             guest.send(JSON.stringify(guestMessage))
           })
@@ -148,7 +150,7 @@ wsApp.ws('/game/:roomID', (ws, req) => {
           row,
           player,
         }: { column: number; row: number; player: number } = messageData.payload
-        // console.log('click', roomID, room)
+
         // Change turn
         room!.turn = room!.turn === 1 ? 2 : 1
         room?.players.forEach((p) => {
@@ -180,8 +182,10 @@ wsApp.ws('/game/:roomID', (ws, req) => {
                 enemyBoard: p.enemyBoard,
                 player: p.player,
                 turn: room!.turn,
+                hits: p.hits 
               },
             }
+
             p.ws.send(JSON.stringify(message))
 
             const enemyMessage = {
@@ -191,6 +195,7 @@ wsApp.ws('/game/:roomID', (ws, req) => {
                 enemyBoard: activePlayer!.enemyBoard,
                 player: activePlayer!.player,
                 turn: room!.turn,
+                hits: activePlayer?.hits
               },
             }
             activePlayer!.ws.send(JSON.stringify(enemyMessage))
@@ -207,7 +212,19 @@ wsApp.ws('/game/:roomID', (ws, req) => {
               //Send message to both players
               activePlayer!.ws.send(JSON.stringify(gameOverMessage))
               p.ws.send(JSON.stringify(gameOverMessage))
+          }
+
+            //Notify Scores
+            const scoresMessage = {
+              action: 'scoresUpdate',
+              data: {
+                rooms: getTotalPlayersPerRoom(rooms)
+              }
             }
+
+            guests.forEach((guest) => {
+              guest.send(JSON.stringify(scoresMessage))
+            })     
           }
         })
 

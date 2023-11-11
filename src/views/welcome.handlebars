@@ -5,22 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <style>
-    .custom-button {
-      background-color: #FFB62C;
-      border: none;
-    }
-
-    /* Custom CSS for button hover */
-    .custom-button:hover {
-      background-color: #FF9C00;
-      /* Slightly darker shade of #FFB62C */
-    }
-
-    #roomList a {
-      color: #FFB62C;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
   <script src="js/battleship.js"></script>
 </head>
 
@@ -32,7 +17,7 @@
 
     socket.onmessage = handleOnMessage
   </script>
-  <div class="container mt-5">
+  <div class="container">
     <div class="row">
       <div class="col-md-12 welcome-text">
         <h1>Welcome</h1>
@@ -45,10 +30,16 @@
       </div>
     </div>
     <div class="row mt-4">
-      <div class="col-md-12">
+      <div class="col-md-6">
         <h2>Already Created Rooms</h2>
         <ul id="roomList">
           <!-- Add more rooms as needed -->
+        </ul>
+      </div>
+      <div class="col-md-6">
+        <h2 style="text-align: center">Game Scores</h2>
+        <ul id="scoreList">
+          <!-- Show game scores -->
         </ul>
       </div>
     </div>
