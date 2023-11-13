@@ -8,6 +8,7 @@ const handleOnMessage = ({ data: message }) => {
   const { action, data } = JSON.parse(message)
 
   const gameStatus = document.getElementById('gameStatus')
+  const roomDiv = document.getElementById('room')
 
   switch (action) {
     case 'playerBoardUpdate':
@@ -37,6 +38,8 @@ const handleOnMessage = ({ data: message }) => {
       const { rooms } = data
 
       const roomList = document.getElementById('roomList')
+
+      roomList.innerHTML = ''
 
       rooms.forEach((room, ix) => {
         const li = document.createElement('li')
@@ -77,6 +80,9 @@ const handleOnMessage = ({ data: message }) => {
       })
 
       break
+    case 'sessionEnd':
+      roomDiv.innerHTML += ', the session has ended click <a href="/">here</a> to go back and create a new one'
+      break;
     default:
       break
   }

@@ -88,6 +88,18 @@ wsApp.ws('/game/:roomID', (ws, req) => {
           }
 
           ws.send(JSON.stringify(message))
+
+          //Notify guest
+          const guestMessage = {
+            action: 'roomsUpdate',
+            data: {
+              rooms: getTotalPlayersPerRoom(rooms)
+            }
+          }
+
+          guests.forEach((guest) => {
+            guest.send(JSON.stringify(guestMessage))
+          })
           //Send board to player
         } else if (room && room.players.length < 2) {
           //Player 2 joins the room
@@ -233,6 +245,33 @@ wsApp.ws('/game/:roomID', (ws, req) => {
       default:
         break
     }
+  })
+
+  ws.on('close', () => {
+
+    //Notify end of the session
+    const room = rooms.get(roomID)
+
+    const sessionEndMessage = {
+      action: 'sessionEnd'
+    }
+
+    room?.players?.forEach((value) => {
+      value.ws && value.ws !== ws && value.ws.send(JSON.stringify(sessionEndMessage))
+    })
+    //End room session
+    rooms.delete(roomID)
+
+    //Notify the guests
+    const guestMessage = {
+      action: 'roomsUpdate',
+      data: {
+        rooms: getTotalPlayersPerRoom(rooms)
+      }
+    }
+    guests.forEach((guest) => {
+      guest.send(JSON.stringify(guestMessage))
+    })
   })
 })
 
