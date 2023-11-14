@@ -172,6 +172,7 @@ wsApp.ws('/game/:roomID', (ws, req) => {
               (pl) => pl.player === player
             )
 
+            let miss = false
             if (matValue === 'S') {
               //Register a Hit
               p.playerBoard[row][column] = `H|${position}|${index}`
@@ -186,6 +187,7 @@ wsApp.ws('/game/:roomID', (ws, req) => {
 
               // Change turn if the user miss
               room!.turn = room!.turn === 1 ? 2 : 1
+              miss = true
             }
             //Send the hit to the player playerBoardUpdate
             const message = {
@@ -195,7 +197,8 @@ wsApp.ws('/game/:roomID', (ws, req) => {
                 enemyBoard: p.enemyBoard,
                 player: p.player,
                 turn: room!.turn,
-                hits: p.hits 
+                hits: p.hits,
+                miss, 
               },
             }
 

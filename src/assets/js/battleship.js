@@ -9,10 +9,12 @@ const handleOnMessage = ({ data: message }) => {
 
   const gameStatus = document.getElementById('gameStatus')
   const roomDiv = document.getElementById('room')
+  const explosionAudio = document.getElementById('explosion')
+  const missAudio = document.getElementById('miss')
 
   switch (action) {
     case 'playerBoardUpdate':
-      const { playerBoard, enemyBoard, player, turn, hits: playerHits } = data
+      const { playerBoard, enemyBoard, player, turn, hits: playerHits, miss } = data
       //Render my board
       const playerTable = document.getElementById('playerBoard')
       const playerHitsTable = document.getElementById('playerHits')
@@ -29,6 +31,15 @@ const handleOnMessage = ({ data: message }) => {
         gameStatus.innerHTML = turn === player ? 'Your Turn' : `Rival's Turn`
       }
       playerHitsTable.innerHTML = `Hits: ${playerHits ? playerHits : 0} 💥`
+
+      //Check which audio to play
+      if (miss !== undefined) {
+        if (miss) {
+          missAudio.play()
+        } else {
+          explosionAudio.play()
+        }
+      }
 
       break
     case 'playerJoined':
